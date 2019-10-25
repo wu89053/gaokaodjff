@@ -8,6 +8,7 @@
 
 ## 使用方法
 
+安装Python环境，请确保同时安装了[openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html#installation) 库
 1. 打开程序运行目录下的 `原始成绩.xlsx` ，将需要转换的成绩单按照 `原始成绩.xlsx` 的格式制作好。
 2. 将制作好的成绩单粘贴到 `原始成绩.xlsx` 中，不要改变表头等信息。
 3. 关闭 `原始成绩.xlsx` 后再打开程序（双击TransformGrades），按照程序要求进行操作。
