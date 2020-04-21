@@ -63,10 +63,10 @@ def statistic(worksheet, grades, bounds):
                 grades[subject].score.append(
                     float(worksheet.cell(row, col).value))
         print("共有 " + str(grades[subject].selection) + " 人选择" + subject + ",")
-        if grades[subject].selection >= 34:
+        if grades[subject].selection >= 1:
             grades[subject].divide(bounds)
         elif grades[subject].selection != 0:
-            input("本科选考人数 <= 34 且不为 0, 将无法进行赋分.\n按任意键退出:")
+            input("本科选考人数 < 1 且不为 0, 将无法进行赋分.\n按任意键退出:")
             exit()
     print("共有 " + str(worksheet.max_row - 2) + " 人成绩有效.")
 
@@ -77,10 +77,8 @@ def calc(grade, standard, origin, division):
         return standard[division][1]
     if grade.div_low[division] == origin:
         return standard[division][0]
-    temp = float(grade.div_up[division] - origin) / \
-        float(origin - grade.div_low[division])
-    trans = float(standard[division][1] +
-                  standard[division][0] * temp) / float(temp + 1)
+    temp = float(grade.div_up[division] - origin) / float(origin - grade.div_low[division])
+    trans = float(standard[division][1] + standard[division][0] * temp) / float(temp + 1)
     return trans
 
 
@@ -188,8 +186,7 @@ def run():
     grades = {'物理': Grade('物理'), '化学': Grade('化学'), '生物': Grade(
         '生物'), '历史': Grade('历史'), '政治': Grade('政治'), '地理': Grade('地理')}
     bounds = (0.15, 0.50, 0.85, 0.98, 1.00)
-    standard = ((86, 100), (71, 85), (56, 70), (41, 55),
-                (30, 40))
+    standard = ((86, 100), (71, 85), (56, 70), (41, 55),(30, 40))
     print("正在统计...")
     statistic(worksheet, grades, bounds)
     format(worksheet)
