@@ -1,6 +1,9 @@
+import datetime
+from time import time
 import openpyxl as opx
 import os.path
 from copy import copy
+import time
 from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 
 
@@ -45,7 +48,7 @@ def statistic(worksheet, grades, bounds):
         for col in range(8, 14):
             if worksheet.cell(row, col).value:
                 if worksheet.cell(2, col).value == "历史":
-                    selection += "史"
+                    selection += "历"
                 else:
                     selection += (worksheet.cell(2, col).value)[0:1]
         if len(selection) == 3:
@@ -55,7 +58,7 @@ def statistic(worksheet, grades, bounds):
             worksheet.delete_rows(row)
             illegal += 1
     print("剔除 " + str(illegal) + " 条非法数据后：")
-    for col in range(8, 14):
+    for col in range(10, 14):
         subject = worksheet.cell(2, col).value
         for row in range(3, worksheet.max_row + 1):
             if worksheet.cell(row, col).value:
@@ -78,21 +81,21 @@ def calc(grade, standard, origin, division):
     if grade.div_low[division] == origin:
         return standard[division][0]
     temp = float(grade.div_up[division] - origin) / float(origin - grade.div_low[division])
-    trans = float(standard[division][1] + standard[division][0] * temp) / float(temp + 1)
-    return trans
+    trans =float(standard[division][1] + standard[division][0] * temp) / float(temp + 1)
+    return round(trans)
 
 
 def export_trans(transbook, grades, standard):
     """导出转换成绩。"""
     transheet = transbook.active
-    col = 9
-    while col <= 19:
+    col = 11
+    while col <= 17:
         transheet.insert_cols(col)
         transheet.cell(2, col).value = transheet.cell(
             2, col - 1).value + "(转换)"
         col += 2
     for row in range(3, transheet.max_row + 1):
-        for col in range(9, 20, 2):
+        for col in range(11, 18, 2):
             if (transheet.cell(row, col - 1).value):
                 subject = transheet.cell(2, col - 1).value
                 origin = float(transheet.cell(row, col - 1).value)
@@ -105,19 +108,20 @@ def export_trans(transbook, grades, standard):
                         break
                 transheet.cell(row, col).value = calc(
                     grades[subject], standard, origin, division)
-    transheet.cell(2, 21).value = "原始总分"
-    transheet.cell(2, 22).value = "转换总分"
-    transheet.cell(2, 23).value = "序号"
+    transheet.cell(2, 19).value = "原始总分"
+    transheet.cell(2, 20).value = "转换总分"
+    transheet.cell(2, 21).value = "序号"
     formula(transheet)
     format(transheet)
-    transbook.save(r"转换成绩.xlsx")
+    transbook.save(time.strftime('%Y.%m.%d %H:%M:%S ',time.localtime(time.time())) \
+                   .replace(":", "-")+"转换成绩.xlsx")
 
 
 def export_div(grades):
     """导出分数区间。"""
     divbook = opx.load_workbook(r"分数区间.xlsx")
     divsheet = divbook.active
-    for row in range(3, 9):
+    for row in range(5, 9):
         subject = divsheet.cell(row, 2).value
         if grades[subject].selection == 0:
             continue
@@ -168,10 +172,10 @@ def formula(worksheet):
     """为表格添加公式。"""
     for row in range(3, worksheet.max_row + 1):
         worksheet.cell(
-            row, 21).value = "=SUM(E{0}:G{0},H{0},J{0},L{0},N{0},P{0},R{0})".format(row)
+            row, 19).value = "=SUM(E{0}:F{0},G{0},H{0},I{0},J{0},L{0},N{0},P{0})".format(row)
         worksheet.cell(
-            row, 22).value = "=SUM(E{0}:G{0},I{0},K{0},M{0},O{0},Q{0},S{0})".format(row)
-        worksheet.cell(row, 23).value = "=ROW()-2"
+            row, 20).value = "=SUM(E{0}:F{0},G{0},H{0},I{0},K{0},M{0},O{0},Q{0})".format(row)
+        worksheet.cell(row, 21).value = "=ROW()-2"
 
 
 def run():
@@ -183,8 +187,8 @@ def run():
     workbook = opx.load_workbook(r"原始成绩.xlsx")
     worksheet = workbook.active
     worksheet.unmerge_cells("A1:N1")
-    grades = {'物理': Grade('物理'), '化学': Grade('化学'), '生物': Grade(
-        '生物'), '历史': Grade('历史'), '政治': Grade('政治'), '地理': Grade('地理')}
+    grades = {'生物': Grade(
+        '生物'), '化学': Grade('化学'), '政治': Grade('政治'), '地理': Grade('地理')}
     bounds = (0.15, 0.50, 0.85, 0.98, 1.00)
     standard = ((86, 100), (71, 85), (56, 70), (41, 55),(30, 40))
     print("正在统计...")
